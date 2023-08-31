@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 
 public class ProcessPrivilegesManager
 {
+    #region Native Windows Calls and Constants
     [DllImport("advapi32.dll", SetLastError = true)]
     private static extern bool AdjustTokenPrivileges(IntPtr TokenHandle, bool DisableAllPrivileges, ref TOKEN_PRIVILEGES NewState, int BufferLength, IntPtr PreviousState, IntPtr ReturnLength);
 
@@ -34,8 +35,9 @@ public class ProcessPrivilegesManager
         public uint PrivilegeCount;
         public LUID_AND_ATTRIBUTES Privilege;
     }
+    #endregion
 
-    public List<string> ReducePrivileges(Process? process = null, params string[] privilegeNames)
+    public List<string> RemovePrivileges(Process? process = null, params string[] privilegeNames)
     {
         var errors = new List<string>();
 
@@ -92,8 +94,7 @@ public class Program
     public static void Main(string[] args)
     {
         var manager = new ProcessPrivilegesManager();
-        var errors = manager.ReducePrivileges(null, "SeUndockPrivilege", "SeShutdownPrivilege");
-
+        var errors = manager.RemovePrivileges(null, "SeUndockPrivilege", "SeShutdownPrivilege");
         if (errors.Count > 0)
         {
             Console.WriteLine("Errors encountered while reducing privileges:");
